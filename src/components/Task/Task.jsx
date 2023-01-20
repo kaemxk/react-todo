@@ -3,24 +3,6 @@ import { formatDistanceToNow } from 'date-fns'
 import PropTypes from 'prop-types'
 
 export default class Task extends Component {
-  constructor(props) {
-    super(props)
-
-    this.defaultProps = {
-      text: '',
-      onDeleted: () => {},
-      onToggleDone: () => {},
-      done: false,
-    }
-
-    this.propTypes = {
-      text: PropTypes.string,
-      onDeleted: PropTypes.func,
-      onToggleDone: PropTypes.func,
-      done: PropTypes.bool,
-    }
-  }
-
   render() {
     const { text, onDeleted, onToggleDone, done, createTime } = this.props
     let classNames = 'active'
@@ -49,4 +31,18 @@ export default class Task extends Component {
       </li>
     )
   }
+}
+
+Task.defaultProps = {
+  text: '',
+  onDeleted: () => {},
+  onToggleDone: () => {},
+  done: false,
+}
+
+Task.propTypes = {
+  text: PropTypes.string,
+  onDeleted: PropTypes.func,
+  onToggleDone: PropTypes.func,
+  done: PropTypes.bool,
 }

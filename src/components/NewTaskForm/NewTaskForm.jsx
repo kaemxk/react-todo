@@ -9,14 +9,6 @@ export default class NewTaskForm extends Component {
       label: '',
     }
 
-    this.defaultProps = {
-      onItemAdded: () => {},
-    }
-
-    this.propTypes = {
-      onItemAdded: PropTypes.func,
-    }
-
     this.onLabelChange = (e) => {
       this.setState({
         label: e.target.value,
@@ -48,4 +40,12 @@ export default class NewTaskForm extends Component {
       </header>
     )
   }
+}
+
+NewTaskForm.defaultProps = {
+  onItemAdded: () => {},
+}
+
+NewTaskForm.propTypes = {
+  onItemAdded: PropTypes.func,
 }

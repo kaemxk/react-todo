@@ -57,6 +57,12 @@ export default class App extends Component {
         }
       })
     }
+
+    this.filter = (label) => {
+      this.setState({
+        filtered: label,
+      })
+    }
   }
 
   createTodoItem(text, createTime) {
