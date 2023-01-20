@@ -61,9 +61,9 @@
     "prettier": "^2.8.3"
   },
   "lint-staged": {
-    ".jsx": [
+    "**/*.jsx": [
       "npm run lint:fix",
-      "prettier --write ."
+      "npm run format"
     ]
   }
 }
