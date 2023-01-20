@@ -23,8 +23,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "prepare": "husky install",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "lint": "eslint src/**",
+    "lint:fix": "eslint src/** --fix",
     "format": "prettier --write ."
   },
   "eslintConfig": {
@@ -61,9 +61,9 @@
     "prettier": "^2.8.3"
   },
   "lint-staged": {
-    "**/*.{js,jsx}": [
+    ".jsx": [
       "npm run lint:fix",
-      "prettier --write"
+      "prettier --write ."
     ]
   }
 }

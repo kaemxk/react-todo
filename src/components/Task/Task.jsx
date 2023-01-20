@@ -1,27 +1,31 @@
-import React, { Component } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import PropTypes from 'prop-types';
+import { Component } from 'react'
+import { formatDistanceToNow } from 'date-fns'
+import PropTypes from 'prop-types'
 
 export default class Task extends Component {
-  static defaultProps = {
-    text: '',
-    onDeleted: () => {},
-    onToggleDone: () => {},
-    done: false,
-  };
+  constructor(props) {
+    super(props)
 
-  static propTypes = {
-    text: PropTypes.string,
-    onDeleted: PropTypes.func,
-    onToggleDone: PropTypes.func,
-    done: PropTypes.bool,
-  };
+    this.defaultProps = {
+      text: '',
+      onDeleted: () => {},
+      onToggleDone: () => {},
+      done: false,
+    }
+
+    this.propTypes = {
+      text: PropTypes.string,
+      onDeleted: PropTypes.func,
+      onToggleDone: PropTypes.func,
+      done: PropTypes.bool,
+    }
+  }
 
   render() {
-    const { text, onDeleted, onToggleDone, done, createTime } = this.props;
-    let classNames = 'active';
+    const { text, onDeleted, onToggleDone, done, createTime } = this.props
+    let classNames = 'active'
     if (done) {
-      classNames = 'completed';
+      classNames = 'completed'
     }
     return (
       <li className={classNames}>
@@ -32,14 +36,10 @@ export default class Task extends Component {
               {text}
             </span>
             <span className="created">
-              {
-                // setInterval(() => {
-                formatDistanceToNow(createTime, {
-                  addSuffix: true,
-                  includeSeconds: true,
-                })
-                // }, 1000)
-              }
+              {formatDistanceToNow(createTime, {
+                addSuffix: true,
+                includeSeconds: true,
+              })}
             </span>
           </label>
           <button className="icon icon-edit"></button>
@@ -47,6 +47,6 @@ export default class Task extends Component {
         </div>
         <input type="text" className="edit" />
       </li>
-    );
+    )
   }
 }

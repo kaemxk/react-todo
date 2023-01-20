@@ -1,33 +1,37 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Component } from 'react'
+import PropTypes from 'prop-types'
 
 export default class NewTaskForm extends Component {
-  state = {
-    label: '',
-  };
+  constructor(props) {
+    super(props)
 
-  static defaultProps = {
-    onItemAdded: () => {},
-  };
-
-  static propTypes = {
-    onItemAdded: PropTypes.func,
-  };
-
-  onLabelChange = (e) => {
-    this.setState({
-      label: e.target.value,
-    });
-  };
-
-  onKeyDown = (e) => {
-    if (e.keyCode === 13 && this.state.label !== '') {
-      this.props.onItemAdded(this.state.label);
-      this.setState({
-        label: '',
-      });
+    this.state = {
+      label: '',
     }
-  };
+
+    this.defaultProps = {
+      onItemAdded: () => {},
+    }
+
+    this.propTypes = {
+      onItemAdded: PropTypes.func,
+    }
+
+    this.onLabelChange = (e) => {
+      this.setState({
+        label: e.target.value,
+      })
+    }
+
+    this.onKeyDown = (e) => {
+      if (e.keyCode === 13 && this.state.label !== '') {
+        this.props.onItemAdded(this.state.label)
+        this.setState({
+          label: '',
+        })
+      }
+    }
+  }
 
   render() {
     return (
@@ -42,6 +46,6 @@ export default class NewTaskForm extends Component {
           value={this.state.label}
         />
       </header>
-    );
+    )
   }
 }

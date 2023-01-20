@@ -1,29 +1,63 @@
-import { Component } from 'react';
-import NewTaskForm from '../NewTaskForm/NewTaskForm';
-import TaskList from '../TaskList/TaskList';
-import Footer from '../Footer/Footer';
+import { Component } from 'react'
+
+import NewTaskForm from '../NewTaskForm/NewTaskForm'
+import TaskList from '../TaskList/TaskList'
+import Footer from '../Footer/Footer'
 
 export default class App extends Component {
-  maxId = 100;
+  constructor(props) {
+    super(props)
+    this.maxId = 100
+    this.state = {
+      todos: [
+        this.createTodoItem('Drink Coffee', new Date()),
+        this.createTodoItem('Make Awesome App', new Date()),
+        this.createTodoItem('Have a lunch', new Date()),
+      ],
+      filtered: 'All',
+    }
 
-  state = {
-    todos: [
-      this.createTodoItem('Drink Coffee', new Date()),
-      this.createTodoItem('Make Awesome App', new Date()),
-      this.createTodoItem('Have a lunch', new Date()),
-    ],
-    filtered: 'All',
-  };
+    this.deleteItem = (id) => {
+      this.setState(({ todos }) => {
+        const idx = todos.findIndex((el) => el.id === id)
 
-  deleteItem = (id) => {
-    this.setState(({ todos }) => {
-      const idx = todos.findIndex((el) => el.id === id);
+        return {
+          todos: [...todos.slice(0, idx), ...todos.slice(idx + 1)],
+        }
+      })
+    }
 
-      return {
-        todos: [...todos.slice(0, idx), ...todos.slice(idx + 1)],
-      };
-    });
-  };
+    this.onToggleDone = (id) => {
+      this.setState(({ todos }) => {
+        const idx = todos.findIndex((el) => el.id === id)
+        const oldItem = todos[idx]
+        const newItem = { ...oldItem, done: !oldItem.done }
+        return {
+          todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
+        }
+      })
+    }
+
+    this.onItemAdded = (text) => {
+      this.setState(({ todos }) => {
+        const newItem = this.createTodoItem(text, Date.now())
+        const newArr = [...todos, newItem]
+
+        return {
+          todos: newArr,
+        }
+      })
+    }
+
+    this.clearAll = () => {
+      this.setState(({ todos }) => {
+        const arr = [...todos].filter((el) => !el.done)
+        return {
+          todos: arr,
+        }
+      })
+    }
+  }
 
   createTodoItem(text, createTime) {
     return {
@@ -31,63 +65,26 @@ export default class App extends Component {
       done: false,
       id: this.maxId++,
       createTime,
-    };
+    }
   }
 
-  onToggleDone = (id) => {
-    this.setState(({ todos }) => {
-      const idx = todos.findIndex((el) => el.id === id);
-      const oldItem = todos[idx];
-      const newItem = { ...oldItem, done: !oldItem.done };
-      return {
-        todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
-      };
-    });
-  };
-
-  onItemAdded = (text) => {
-    this.setState(({ todos }) => {
-      const newItem = this.createTodoItem(text, Date.now());
-      const newArr = [...todos, newItem];
-
-      return {
-        todos: newArr,
-      };
-    });
-  };
-
-  filter = (label) => {
-    this.setState({
-      filtered: label,
-    });
-  };
-
-  clearAll = () => {
-    this.setState(({ todos }) => {
-      const arr = [...todos].filter((el) => !el.done);
-      return {
-        todos: arr,
-      };
-    });
-  };
-
   render() {
-    const { todos, filtered } = this.state;
+    const { todos, filtered } = this.state
 
-    let todoFiltered = [];
+    let todoFiltered = []
     switch (filtered) {
       case 'All':
-        todoFiltered = [...todos];
-        break;
+        todoFiltered = [...todos]
+        break
       case 'Active':
-        todoFiltered = [...todos.filter((el) => el.done === false)];
-        break;
+        todoFiltered = [...todos.filter((el) => el.done === false)]
+        break
       case 'Completed':
-        todoFiltered = [...todos.filter((el) => el.done === true)];
-        break;
+        todoFiltered = [...todos.filter((el) => el.done === true)]
+        break
     }
 
-    const doneCount = this.state.todos.filter((i) => !i.done).length;
+    const doneCount = this.state.todos.filter((i) => !i.done).length
 
     return (
       <section className="todoapp">
@@ -97,6 +94,6 @@ export default class App extends Component {
           <Footer doneCount={doneCount} filter={this.filter} clearAll={this.clearAll} />
         </section>
       </section>
-    );
+    )
   }
 }
