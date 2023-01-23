@@ -3,20 +3,46 @@ import { formatDistanceToNow } from 'date-fns'
 import PropTypes from 'prop-types'
 
 export default class Task extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      label: '',
+    }
+
+    this.onLabelChange = (e) => {
+      this.setState({
+        label: e.target.value,
+      })
+    }
+
+    this.onKeyDown = (e) => {
+      if (e.keyCode === 13 && this.state.label !== '') {
+        this.props.onItemEdited(this.props.id, this.state.label)
+        this.setState({
+          label: '',
+        })
+      }
+    }
+  }
+
   render() {
-    const { text, onDeleted, onToggleDone, done, createTime } = this.props
-    let classNames = 'active'
+    const { text, onDeleted, onToggleDone, done, createTime, edit, toggleEdit } = this.props
+    let classNames = 'active',
+      checked = false
     if (done) {
       classNames = 'completed'
+      checked = true
+    }
+    if (edit) {
+      classNames = 'editing'
     }
     return (
       <li className={classNames}>
         <div className="view">
-          <input className="toggle" type="checkbox" />
+          <input className="toggle" type="checkbox" defaultChecked={checked} onClick={onToggleDone} />
           <label>
-            <span className="description" onClick={onToggleDone}>
-              {text}
-            </span>
+            <span className="description">{text}</span>
             <span className="created">
               {formatDistanceToNow(createTime, {
                 addSuffix: true,
@@ -24,10 +50,16 @@ export default class Task extends Component {
               })}
             </span>
           </label>
-          <button className="icon icon-edit"></button>
+          <button className="icon icon-edit" onClick={toggleEdit}></button>
           <button className="icon icon-destroy" onClick={onDeleted}></button>
         </div>
-        <input type="text" className="edit" />
+        <input
+          type="text"
+          className="edit"
+          onKeyDown={this.onKeyDown}
+          onChange={this.onLabelChange}
+          value={this.state.label}
+        />
       </li>
     )
   }

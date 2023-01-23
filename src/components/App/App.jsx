@@ -49,6 +49,17 @@ export default class App extends Component {
       })
     }
 
+    this.onItemEdited = (id, text) => {
+      this.setState(({ todos }) => {
+        const idx = todos.findIndex((el) => el.id === id)
+        const oldItem = todos[idx]
+        const newItem = { ...oldItem, text: text, edit: !oldItem.edit }
+        return {
+          todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
+        }
+      })
+    }
+
     this.clearAll = () => {
       this.setState(({ todos }) => {
         const arr = [...todos].filter((el) => !el.done)
@@ -63,6 +74,17 @@ export default class App extends Component {
         filtered: label,
       })
     }
+
+    this.toggleEdit = (id) => {
+      this.setState(({ todos }) => {
+        const idx = todos.findIndex((el) => el.id === id)
+        const oldItem = todos[idx]
+        const newItem = { ...oldItem, edit: !oldItem.edit }
+        return {
+          todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
+        }
+      })
+    }
   }
 
   createTodoItem(text, createTime) {
@@ -71,6 +93,7 @@ export default class App extends Component {
       done: false,
       id: this.maxId++,
       createTime,
+      edit: false,
     }
   }
 
@@ -96,7 +119,13 @@ export default class App extends Component {
       <section className="todoapp">
         <NewTaskForm onItemAdded={this.onItemAdded} />
         <section className="main">
-          <TaskList todos={todoFiltered} onDeleted={(id) => this.deleteItem(id)} onToggleDone={this.onToggleDone} />
+          <TaskList
+            todos={todoFiltered}
+            onDeleted={(id) => this.deleteItem(id)}
+            onToggleDone={this.onToggleDone}
+            toggleEdit={this.toggleEdit}
+            onItemEdited={this.onItemEdited}
+          />
           <Footer doneCount={doneCount} filter={this.filter} clearAll={this.clearAll} />
         </section>
       </section>
