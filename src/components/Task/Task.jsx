@@ -2,32 +2,30 @@ import { Component } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import PropTypes from 'prop-types'
 
+import Timer from '../Timer/Timer'
+
 export default class Task extends Component {
-  constructor(props) {
-    super(props)
+  state = {
+    label: '',
+  }
 
-    this.state = {
-      label: '',
-    }
+  onLabelChange = (e) => {
+    this.setState({
+      label: e.target.value,
+    })
+  }
 
-    this.onLabelChange = (e) => {
+  onKeyDown = (e) => {
+    if (e.keyCode === 13 && this.state.label !== '') {
+      this.props.onItemEdited(this.props.id, this.state.label)
       this.setState({
-        label: e.target.value,
+        label: '',
       })
-    }
-
-    this.onKeyDown = (e) => {
-      if (e.keyCode === 13 && this.state.label !== '') {
-        this.props.onItemEdited(this.props.id, this.state.label)
-        this.setState({
-          label: '',
-        })
-      }
     }
   }
 
   render() {
-    const { text, onDeleted, onToggleDone, done, createTime, edit, toggleEdit } = this.props
+    const { text, onDeleted, onToggleDone, done, createTime, edit, toggleEdit, time, id } = this.props
     let classNames = 'active',
       checked = false
     if (done) {
@@ -37,13 +35,15 @@ export default class Task extends Component {
     if (edit) {
       classNames = 'editing'
     }
+
     return (
       <li className={classNames}>
         <div className="view">
-          <input className="toggle" type="checkbox" defaultChecked={checked} onClick={onToggleDone} />
+          <input className="toggle" type="checkbox" checked={checked} onClick={onToggleDone} readOnly={true} />
           <label>
-            <span className="description">{text}</span>
-            <span className="created">
+            <span className="title">{text}</span>
+            <Timer time={time} id={id} />
+            <span className="description">
               {formatDistanceToNow(createTime, {
                 addSuffix: true,
                 includeSeconds: true,

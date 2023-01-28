@@ -5,128 +5,147 @@ import TaskList from '../TaskList/TaskList'
 import Footer from '../Footer/Footer'
 
 export default class App extends Component {
-  constructor(props) {
-    super(props)
-    this.maxId = 100
-    this.state = {
-      todos: [
-        this.createTodoItem('Drink Coffee', new Date()),
-        this.createTodoItem('Make Awesome App', new Date()),
-        this.createTodoItem('Have a lunch', new Date()),
-      ],
-      filtered: 'All',
+  state = {
+    tasks: [],
+    filter: 'All',
+  }
+  maxId = 100
+
+  componentDidMount() {
+    if (localStorage.getItem('maxId') !== null) {
+      this.maxId = Number(localStorage.getItem('maxId'))
+    } else {
+      localStorage.setItem('maxId', JSON.stringify(this.maxId))
     }
-
-    this.deleteItem = (id) => {
-      this.setState(({ todos }) => {
-        const idx = todos.findIndex((el) => el.id === id)
-
-        return {
-          todos: [...todos.slice(0, idx), ...todos.slice(idx + 1)],
-        }
-      })
-    }
-
-    this.onToggleDone = (id) => {
-      this.setState(({ todos }) => {
-        const idx = todos.findIndex((el) => el.id === id)
-        const oldItem = todos[idx]
-        const newItem = { ...oldItem, done: !oldItem.done }
-        return {
-          todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
-        }
-      })
-    }
-
-    this.onItemAdded = (text) => {
-      this.setState(({ todos }) => {
-        const newItem = this.createTodoItem(text, Date.now())
-        const newArr = [...todos, newItem]
-
-        return {
-          todos: newArr,
-        }
-      })
-    }
-
-    this.onItemEdited = (id, text) => {
-      this.setState(({ todos }) => {
-        const idx = todos.findIndex((el) => el.id === id)
-        const oldItem = todos[idx]
-        const newItem = { ...oldItem, text: text, edit: !oldItem.edit }
-        return {
-          todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
-        }
-      })
-    }
-
-    this.clearAll = () => {
-      this.setState(({ todos }) => {
-        const arr = [...todos].filter((el) => !el.done)
-        return {
-          todos: arr,
-        }
-      })
-    }
-
-    this.filter = (label) => {
+    if (localStorage.getItem('tasks') !== null) {
       this.setState({
-        filtered: label,
+        tasks: JSON.parse(localStorage.getItem('tasks')),
       })
-    }
-
-    this.toggleEdit = (id) => {
-      this.setState(({ todos }) => {
-        const idx = todos.findIndex((el) => el.id === id)
-        const oldItem = todos[idx]
-        const newItem = { ...oldItem, edit: !oldItem.edit }
-        return {
-          todos: [...todos.slice(0, idx), newItem, ...todos.slice(idx + 1)],
-        }
-      })
+    } else {
+      localStorage.setItem('tasks', JSON.stringify(this.state.tasks))
     }
   }
 
-  createTodoItem(text, createTime) {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState !== this.state) {
+      localStorage.setItem('tasks', JSON.stringify(this.state.tasks))
+      localStorage.setItem('maxId', JSON.stringify(this.maxId))
+      this.render()
+    }
+  }
+
+  onDelete = (id) => {
+    this.setState(({ tasks }) => {
+      const idx = tasks.findIndex((el) => el.id === id)
+      return {
+        tasks: [...tasks.slice(0, idx), ...tasks.slice(idx + 1)],
+      }
+    })
+  }
+
+  onToggleDone = (id) => {
+    this.setState(({ tasks }) => {
+      const idx = tasks.findIndex((el) => el.id === id)
+      const oldItem = tasks[idx]
+      const newItem = { ...oldItem, done: !oldItem.done }
+      return {
+        tasks: [...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)],
+      }
+    })
+  }
+
+  onItemAdded = (text, time) => {
+    this.setState(({ tasks }) => {
+      const newItem = this.createTodoItem(text, time)
+      const newArr = [...tasks, newItem]
+
+      return {
+        tasks: newArr,
+      }
+    })
+  }
+
+  onToggleEdit(id) {
+    this.setState(({ tasks }) => {
+      const idx = tasks.findIndex((el) => el.id === id)
+      const oldItem = tasks[idx]
+      const newItem = { ...oldItem, edit: !oldItem.edit }
+      return {
+        tasks: [...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)],
+      }
+    })
+  }
+
+  onItemEdited = (id, text) => {
+    this.setState(({ tasks }) => {
+      const idx = tasks.findIndex((el) => el.id === id)
+      const oldItem = tasks[idx]
+      const newItem = { ...oldItem, text: text, edit: !oldItem.edit }
+      return {
+        tasks: [...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)],
+      }
+    })
+  }
+
+  onFilterChange = (label) => {
+    this.setState({
+      filter: label,
+    })
+  }
+
+  arrayFilter(filter) {
+    const { tasks } = this.state
+    let todoFiltered = []
+    switch (filter) {
+      case 'All':
+        todoFiltered = [...tasks]
+        return todoFiltered
+      case 'Active':
+        todoFiltered = [...tasks.filter((el) => el.done === false)]
+        return todoFiltered
+      case 'Completed':
+        todoFiltered = [...tasks.filter((el) => el.done === true)]
+        return todoFiltered
+    }
+  }
+
+  clearAllCompletedTasks = () => {
+    this.setState(({ tasks }) => {
+      const arr = [...tasks].filter((el) => !el.done)
+      return {
+        tasks: arr,
+      }
+    })
+  }
+
+  createTodoItem(text, time) {
     return {
       text,
       done: false,
       id: this.maxId++,
-      createTime,
+      createTime: Date.now(),
       edit: false,
+      time,
     }
   }
 
   render() {
-    const { todos, filtered } = this.state
-
-    let todoFiltered = []
-    switch (filtered) {
-      case 'All':
-        todoFiltered = [...todos]
-        break
-      case 'Active':
-        todoFiltered = [...todos.filter((el) => el.done === false)]
-        break
-      case 'Completed':
-        todoFiltered = [...todos.filter((el) => el.done === true)]
-        break
-    }
-
-    const doneCount = this.state.todos.filter((i) => !i.done).length
+    const { filter } = this.state
+    const filteredTasks = this.arrayFilter(filter)
+    const doneCount = this.state.tasks.filter((i) => !i.done).length
 
     return (
       <section className="todoapp">
         <NewTaskForm onItemAdded={this.onItemAdded} />
         <section className="main">
           <TaskList
-            todos={todoFiltered}
-            onDeleted={(id) => this.deleteItem(id)}
+            tasks={filteredTasks}
+            onDelete={(id) => this.onDelete(id)}
             onToggleDone={this.onToggleDone}
-            toggleEdit={this.toggleEdit}
+            onToggleEdit={this.onToggleEdit}
             onItemEdited={this.onItemEdited}
           />
-          <Footer doneCount={doneCount} filter={this.filter} clearAll={this.clearAll} />
+          <Footer doneCount={doneCount} filter={this.onFilterChange} clearAll={this.clearAllCompletedTasks} />
         </section>
       </section>
     )
