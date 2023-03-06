@@ -1,100 +1,68 @@
-import { Component } from 'react'
+import { useEffect, useState } from 'react'
 
 import NewTaskForm from '../NewTaskForm/NewTaskForm'
 import TaskList from '../TaskList/TaskList'
 import Footer from '../Footer/Footer'
 
-export default class App extends Component {
-  state = {
-    tasks: [],
-    filter: 'All',
-  }
-  maxId = 100
+const App = () => {
+  const [tasks, setTasks] = useState([])
+  const [filter, setFilter] = useState('All')
+  const [maxId, setMaxId] = useState(100)
 
-  componentDidMount() {
+  useEffect(() => {
     if (localStorage.getItem('maxId') !== null) {
-      this.maxId = Number(localStorage.getItem('maxId'))
+      setMaxId(Number(localStorage.getItem('maxId')))
     } else {
-      localStorage.setItem('maxId', JSON.stringify(this.maxId))
+      localStorage.setItem('maxId', JSON.stringify(maxId))
     }
     if (localStorage.getItem('tasks') !== null) {
-      this.setState({
-        tasks: JSON.parse(localStorage.getItem('tasks')),
-      })
+      setTasks(JSON.parse(localStorage.getItem('tasks')))
     } else {
-      localStorage.setItem('tasks', JSON.stringify(this.state.tasks))
+      localStorage.setItem('tasks', JSON.stringify(tasks))
     }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+    localStorage.setItem('maxId', JSON.stringify(maxId))
+  }, [maxId, tasks])
+
+  const onDelete = (id) => {
+    const idx = tasks.findIndex((el) => el.id === id)
+    setTasks([...tasks.slice(0, idx), ...tasks.slice(idx + 1)])
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState !== this.state) {
-      localStorage.setItem('tasks', JSON.stringify(this.state.tasks))
-      localStorage.setItem('maxId', JSON.stringify(this.maxId))
-      this.render()
-    }
+  const onToggleDone = (id) => {
+    const idx = tasks.findIndex((el) => el.id === id)
+    const oldItem = tasks[idx]
+    const newItem = { ...oldItem, done: !oldItem.done }
+    setTasks([...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)])
   }
 
-  onDelete = (id) => {
-    this.setState(({ tasks }) => {
-      const idx = tasks.findIndex((el) => el.id === id)
-      return {
-        tasks: [...tasks.slice(0, idx), ...tasks.slice(idx + 1)],
-      }
-    })
+  const onItemAdded = (text, time) => {
+    const newItem = createTodoItem(text, time)
+    setTasks([...tasks, newItem])
   }
 
-  onToggleDone = (id) => {
-    this.setState(({ tasks }) => {
-      const idx = tasks.findIndex((el) => el.id === id)
-      const oldItem = tasks[idx]
-      const newItem = { ...oldItem, done: !oldItem.done }
-      return {
-        tasks: [...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)],
-      }
-    })
+  const onToggleEdit = (id) => {
+    const idx = tasks.findIndex((el) => el.id === id)
+    const oldItem = tasks[idx]
+    const newItem = { ...oldItem, edit: !oldItem.edit }
+    setTasks([...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)])
   }
 
-  onItemAdded = (text, time) => {
-    this.setState(({ tasks }) => {
-      const newItem = this.createTodoItem(text, time)
-      const newArr = [...tasks, newItem]
-
-      return {
-        tasks: newArr,
-      }
-    })
+  const onItemEdited = (id, text) => {
+    const idx = tasks.findIndex((el) => el.id === id)
+    const oldItem = tasks[idx]
+    const newItem = { ...oldItem, text: text, edit: !oldItem.edit }
+    setTasks([...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)])
   }
 
-  onToggleEdit(id) {
-    this.setState(({ tasks }) => {
-      const idx = tasks.findIndex((el) => el.id === id)
-      const oldItem = tasks[idx]
-      const newItem = { ...oldItem, edit: !oldItem.edit }
-      return {
-        tasks: [...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)],
-      }
-    })
+  const onFilterChange = (label) => {
+    setFilter(label)
   }
 
-  onItemEdited = (id, text) => {
-    this.setState(({ tasks }) => {
-      const idx = tasks.findIndex((el) => el.id === id)
-      const oldItem = tasks[idx]
-      const newItem = { ...oldItem, text: text, edit: !oldItem.edit }
-      return {
-        tasks: [...tasks.slice(0, idx), newItem, ...tasks.slice(idx + 1)],
-      }
-    })
-  }
-
-  onFilterChange = (label) => {
-    this.setState({
-      filter: label,
-    })
-  }
-
-  arrayFilter(filter) {
-    const { tasks } = this.state
+  const arrayFilter = (filter) => {
     let todoFiltered = []
     switch (filter) {
       case 'All':
@@ -109,45 +77,41 @@ export default class App extends Component {
     }
   }
 
-  clearAllCompletedTasks = () => {
-    this.setState(({ tasks }) => {
-      const arr = [...tasks].filter((el) => !el.done)
-      return {
-        tasks: arr,
-      }
-    })
+  const clearAllCompletedTasks = () => {
+    const arr = [...tasks].filter((el) => !el.done)
+    setTasks(arr)
   }
 
-  createTodoItem(text, time) {
+  const createTodoItem = (text, time) => {
+    setMaxId((s) => s + 1)
     return {
       text,
       done: false,
-      id: this.maxId++,
+      id: maxId,
       createTime: Date.now(),
       edit: false,
       time,
     }
   }
 
-  render() {
-    const { filter } = this.state
-    const filteredTasks = this.arrayFilter(filter)
-    const doneCount = this.state.tasks.filter((i) => !i.done).length
+  const filteredTasks = arrayFilter(filter)
+  const doneCount = tasks.filter((i) => !i.done).length
 
-    return (
-      <section className="todoapp">
-        <NewTaskForm onItemAdded={this.onItemAdded} />
-        <section className="main">
-          <TaskList
-            tasks={filteredTasks}
-            onDelete={(id) => this.onDelete(id)}
-            onToggleDone={this.onToggleDone}
-            onToggleEdit={this.onToggleEdit}
-            onItemEdited={this.onItemEdited}
-          />
-          <Footer doneCount={doneCount} filter={this.onFilterChange} clearAll={this.clearAllCompletedTasks} />
-        </section>
+  return (
+    <section className="todoapp">
+      <NewTaskForm onItemAdded={onItemAdded} />
+      <section className="main">
+        <TaskList
+          tasks={filteredTasks}
+          onDelete={(id) => onDelete(id)}
+          onToggleDone={onToggleDone}
+          onToggleEdit={onToggleEdit}
+          onItemEdited={onItemEdited}
+        />
+        <Footer doneCount={doneCount} filter={onFilterChange} clearAll={clearAllCompletedTasks} />
       </section>
-    )
-  }
+    </section>
+  )
 }
+
+export default App

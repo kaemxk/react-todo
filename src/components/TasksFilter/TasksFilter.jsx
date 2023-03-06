@@ -1,54 +1,45 @@
-import { Component } from 'react'
+import { useState } from 'react'
 
-export default class TasksFilter extends Component {
-  constructor(props) {
-    super(props)
+const TasksFilter = ({ onFilter }) => {
+  const [li, setLi] = useState([
+    { label: 'All', id: 'all', active: true },
+    {
+      label: 'Active',
+      id: 'active',
+      active: false,
+    },
+    { label: 'Completed', id: 'completed', active: false },
+  ])
 
-    this.state = {
-      li: [
-        { label: 'All', id: 'all', active: true },
-        {
-          label: 'Active',
-          id: 'active',
-          active: false,
-        },
-        { label: 'Completed', id: 'completed', active: false },
-      ],
-    }
-
-    this.setActive = (id) => {
-      this.setState(({ li }) => {
-        const newArr = [...li]
-        newArr.forEach((i) => {
-          i['id'] === id ? (i.active = true) : (i.active = false)
-        })
-
-        return {
-          li: newArr,
-        }
+  const setActive = (id) => {
+    setLi((li) => {
+      const newArr = [...li]
+      newArr.forEach((i) => {
+        i['id'] === id ? (i.active = true) : (i.active = false)
       })
-    }
-
-    this.onClick = (id, label) => {
-      this.setActive(id)
-      this.props.onFilter(label)
-    }
+      return newArr
+    })
   }
 
-  render() {
-    return (
-      <ul className="filters">
-        {this.state.li.map(({ label, id, active }) => {
-          const classNames = active ? 'selected' : ''
-          return (
-            <li key={id}>
-              <button onClick={() => this.onClick(id, label)} className={classNames}>
-                {label}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
-    )
+  const onClick = (id, label) => {
+    setActive(id)
+    onFilter(label)
   }
+
+  return (
+    <ul className="filters">
+      {li.map(({ label, id, active }) => {
+        const classNames = active ? 'selected' : ''
+        return (
+          <li key={id}>
+            <button onClick={() => onClick(id, label)} className={classNames}>
+              {label}
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+  )
 }
+
+export default TasksFilter

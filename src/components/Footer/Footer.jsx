@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 
-import TasksFilter from '../TasksFilter/TasksFilter'
+import TasksFilterOld from '../TasksFilter/TasksFilter'
 
 const Footer = ({ doneCount, filter, clearAll }) => {
   return (
     <footer className="footer">
       <span className="todo-count">{doneCount} items left</span>
-      <TasksFilter onFilter={filter} />
+      <TasksFilterOld onFilter={filter} />
       <button className="clear-completed" onClick={clearAll}>
         Clear completed
       </button>
